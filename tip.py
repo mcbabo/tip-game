@@ -1,10 +1,14 @@
 import discord
 from discord.ext import commands
 import csv
-import datetime
-import api
+import API
+from pathlib import Path
 
-TOKEN = api.TOKEN
+data_folder = Path("tip-game/")
+
+file_to_open = data_folder / "tips.csv"
+
+TOKEN = API.TOKEN
 bot = commands.Bot(command_prefix = "!")
 
 @bot.command()
@@ -19,13 +23,9 @@ async def nextgame(ctx):
 
 @bot.command()
 async def tip(ctx, game_tip):
-    with open('tip.csv', mode='w') as tip_file:
-        reader = csv.reader(tip_file, delimiter=',')
-        for row in reader:
-            for field in row:
-                if field == ctx.author:
-                    await ctx.send("Du bist schon im Tippspiel")
+    with open(file_to_open, mode='a', newline='', encoding='utf-8') as tip_file:
         tip_writer = csv.writer(tip_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         tip_writer.writerow([ctx.author, game_tip])
-
+        await ctx.send(f"@{ctx.author} hat {game_tip} gewettet")
+        
 bot.run(TOKEN)
